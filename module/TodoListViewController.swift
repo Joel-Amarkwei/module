@@ -10,42 +10,20 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     
-  //  let defaults = UserDefaults.standard
+       
+    let dataPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("New Itms")
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("ItemsArray")
     
     var itemArray = [Modle]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(dataFilePath!)
         
-        let newItem1 = Modle()
-        newItem1.title = "Rude Bouy"
-      //  newItem1.done = true
-        itemArray.append(newItem1)
-        
-        
-        let newItem2 = Modle()
-        newItem2.title = "Stone Bwouy"
-      //  newItem2.done = true
-        itemArray.append(newItem2)
-        
-        
-        let newItem3 = Modle()
-        newItem3.title = "Clark Kent"
-        itemArray.append(newItem3)
-
-//        if let items = defaults.array(forKey: "TodoListArray") as? [Modle] {
-//            itemArray = items
-//        }
-        
-        self.saveItems()
-    }
+        self.loadItems()
+  }
 
     //MARK: - TableView DataSource Methods
-    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
     }
@@ -58,8 +36,12 @@ class TodoListViewController: UITableViewController {
         
         cell.textLabel?.text = item.title
         
-        cell.accessoryType = item.done ? .checkmark : .none
-     
+         cell.accessoryType = item.done ? .checkmark : .none
+        
+        self.saveItems()
+        
+        self.loadItems()
+        
         return cell
     }
     
@@ -70,7 +52,7 @@ class TodoListViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        self.saveItems()
+        //tableView.reloadData()
         
     }
     
@@ -90,16 +72,10 @@ class TodoListViewController: UITableViewController {
             
             self.itemArray.append(newItem)
             
-            let encoder = PropertyListEncoder()
-            
-            do{
-                let data = try encoder.encode(self.itemArray)
-                try data.write(to: self.dataFilePath!)
-            } catch{
-                print("Error trying to encode plist \(error)")
-            }
-                        
             self.saveItems()
+            
+           // self.loadItems()
+            
            }
         
         alert.addTextField { (alertTextField) in
@@ -111,20 +87,33 @@ class TodoListViewController: UITableViewController {
         
             present(alert, animated: true, completion: nil)
         
+            self.loadItems()
     }
     
-    func saveItems() {
-        
+    func saveItems(){
+
         let encoder = PropertyListEncoder()
         
         do{
             let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try data.write(to: dataPath!)
         } catch{
-            print("Error trying to encode plist \(error)")
+            print(dataPath!)
         }
     }
     
+    func loadItems(){
+        if let data = try? Data(contentsOf: dataPath!){
+            
+             let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Modle].self, from: data)
+            } catch {
+                print("there was an error \(error)")
+            }
+        }
+       
+    }
    
 }
 

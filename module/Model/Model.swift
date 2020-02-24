@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Modle: Encodable {
+class Modle: Codable {
     
     var title: String = ""
     var done: Bool = false
