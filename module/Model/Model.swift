@@ -13,7 +13,4 @@ class Modle: Encodable {
     var title: String = ""
     var done: Bool = false
     
-//    init() {
-//
-//    }
 }
