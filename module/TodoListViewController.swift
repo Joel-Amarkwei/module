@@ -10,33 +10,42 @@ import UIKit
 
 class TodoListViewController: UITableViewController {
     
-    let defaults = UserDefaults.standard
+  //  let defaults = UserDefaults.standard
+    
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("ItemsArray")
     
     var itemArray = [Modle]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        print(dataFilePath!)
+        
         let newItem1 = Modle()
         newItem1.title = "Rude Bouy"
+      //  newItem1.done = true
         itemArray.append(newItem1)
         
         
         let newItem2 = Modle()
         newItem2.title = "Stone Bwouy"
+      //  newItem2.done = true
         itemArray.append(newItem2)
         
         
         let newItem3 = Modle()
         newItem3.title = "Clark Kent"
         itemArray.append(newItem3)
-//
-//        if let items = defaults.array(forKey: "TodoListArray") as? [String] {
+
+//        if let items = defaults.array(forKey: "TodoListArray") as? [Modle] {
 //            itemArray = items
 //        }
+        
+        self.saveItems()
     }
 
     //MARK: - TableView DataSource Methods
+    
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return itemArray.count
     }
@@ -49,12 +58,8 @@ class TodoListViewController: UITableViewController {
         
         cell.textLabel?.text = item.title
         
-        if item.done == true {
-            cell.accessoryType = .checkmark
-        } else{
-            cell.accessoryType = .none
-        }
-        
+        cell.accessoryType = item.done ? .checkmark : .none
+     
         return cell
     }
     
@@ -65,11 +70,12 @@ class TodoListViewController: UITableViewController {
         
         tableView.deselectRow(at: indexPath, animated: true)
         
-        tableView.reloadData()
+        self.saveItems()
         
     }
     
 //MARK: - Adding a new barbutton
+    
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         
         var textField = UITextField()
@@ -81,11 +87,19 @@ class TodoListViewController: UITableViewController {
             
             var newItem = Modle()
             newItem.title = textField.text!
+            
             self.itemArray.append(newItem)
             
-            self.defaults.set(self.itemArray, forKey: "TodoListArray")
+            let encoder = PropertyListEncoder()
             
-            self.tableView.reloadData()
+            do{
+                let data = try encoder.encode(self.itemArray)
+                try data.write(to: self.dataFilePath!)
+            } catch{
+                print("Error trying to encode plist \(error)")
+            }
+                        
+            self.saveItems()
            }
         
         alert.addTextField { (alertTextField) in
@@ -97,6 +111,18 @@ class TodoListViewController: UITableViewController {
         
             present(alert, animated: true, completion: nil)
         
+    }
+    
+    func saveItems() {
+        
+        let encoder = PropertyListEncoder()
+        
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        } catch{
+            print("Error trying to encode plist \(error)")
+        }
     }
     
    
