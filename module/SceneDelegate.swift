@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -21,23 +22,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidDisconnect(_ scene: UIScene) {
         print("When the app is disconnected")  }
 
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        print("When the app becomes active")  }
-
     func sceneWillResignActive(_ scene: UIScene) {
        print("When the app resigns from being active")
         
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-      
-        print("When the app enter foreground")
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         
          print("When the app enters the background")
           }
+
 
 }
 

@@ -7,20 +7,22 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
-       
-    let dataPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("New Itms")
+//       
+//    let dataPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("New Itms")
+//    
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    
-    var itemArray = [Modle]()
+    var itemArray = [Item]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+      // loadItems()
         
-        self.loadItems()
   }
 
     //MARK: - TableView DataSource Methods
@@ -40,7 +42,7 @@ class TodoListViewController: UITableViewController {
         
         self.saveItems()
         
-        self.loadItems()
+        //self.loadItems()
         
         return cell
     }
@@ -66,9 +68,10 @@ class TodoListViewController: UITableViewController {
         
         
            let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            
-            var newItem = Modle()
+                        
+            let newItem = Item(context: self.context)
             newItem.title = textField.text!
+            newItem.done = false
             
             self.itemArray.append(newItem)
             
@@ -87,33 +90,30 @@ class TodoListViewController: UITableViewController {
         
             present(alert, animated: true, completion: nil)
         
-            self.loadItems()
+          //  self.loadItems()
     }
     
     func saveItems(){
-
-        let encoder = PropertyListEncoder()
         
         do{
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataPath!)
-        } catch{
-            print(dataPath!)
+            try context.save()
+                } catch{
+                    print("Error printing out context \(error)")
         }
+        self.tableView.reloadData()
     }
     
-    func loadItems(){
-        if let data = try? Data(contentsOf: dataPath!){
-            
-             let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Modle].self, from: data)
-            } catch {
-                print("there was an error \(error)")
-            }
-        }
-       
-    }
+//    func loadItems(){
+//        if let data = try? Data(contentsOf: dataPath!){
+//
+//             let decoder = PropertyListDecoder()
+//            do {
+//                itemArray = try decoder.decode([Item].self, from: data)
+//            } catch {
+//                print("there was an error \(error)")
+//            }
+//        }
+//    }
    
 }
 
