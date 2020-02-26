@@ -14,7 +14,11 @@ import CoreData
 
 class TodoListViewController: UITableViewController {
     
-       
+    var selectedCategory : Category? {
+        didSet{
+            loadItems()
+        }
+    }
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
@@ -22,9 +26,6 @@ class TodoListViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-       loadItems()
-        
         
   }
 
@@ -80,6 +81,7 @@ class TodoListViewController: UITableViewController {
                         
             let newItem = Item(context: self.context)
             newItem.title = textField.text!
+            newItem.parentCategory = self.selectedCategory
             newItem.done = false
             
             self.itemArray.append(newItem)
@@ -113,7 +115,15 @@ class TodoListViewController: UITableViewController {
     
     //MARK: - Loading Data from Database --Reading
     
-    func loadItems( with request: NSFetchRequest<Item> = Item.fetchRequest() ){
+    func loadItems( with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil){
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        if let additionalPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
         
         do{
             itemArray = try context.fetch(request)
@@ -142,7 +152,7 @@ extension TodoListViewController: UISearchBarDelegate {
         let sort = NSSortDescriptor(key: "title", ascending: true)
         request.sortDescriptors = [sort]
         
-        loadItems(with: request)
+        loadItems(with: request, predicate: predicate)
         
     }
     
