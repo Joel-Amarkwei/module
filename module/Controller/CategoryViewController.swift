@@ -43,7 +43,7 @@ class CategoryViewController: UITableViewController {
         
         performSegue(withIdentifier: "goToItems", sender: self)
         
-     //   tableView.deselectRow(at: indexPath, animated: true)
+        tableView.deselectRow(at: indexPath, animated: true)
         
     }
     
