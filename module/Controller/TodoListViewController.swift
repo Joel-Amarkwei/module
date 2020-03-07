@@ -11,13 +11,16 @@
 
 import UIKit
 import RealmSwift
+import SwipeCellKit
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
     var selectedCategory : Category? {
         didSet{
+            
+            tableView.rowHeight = 75.0
             loadItems()
         }
     }
@@ -36,8 +39,8 @@ class TodoListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
+               
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = itemArray?[indexPath.row] {
             
@@ -139,7 +142,19 @@ class TodoListViewController: UITableViewController {
         
          self.tableView.reloadData()
 }
+    //Deleting function here
+       override func updateModel(at indexPath: IndexPath) {
+           if let cellForDeletion = self.itemArray?[indexPath.row]{
+           do{
+               try self.realm.write{
+               self.realm.delete(cellForDeletion)
+                           }
+                   } catch{
+                           print("Error deleting items to database \(error)")
+                           }
+       }
 
+}
 }
 
 // MARK: - EXTENTIONS USING A SEARCHBAR
